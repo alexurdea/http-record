@@ -1,0 +1,14 @@
+{
+  "name": "dev",
+  "version": "0.0.0",
+  "description": "A HTTP proxy that records and replays requests, including headers. Useful for mocking responses in tests.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "test"
+  },
+  "author": "Alex Urdea",
+  "license": "BSD-2-Clause"
+}
