@@ -10,5 +10,9 @@
     "test": "test"
   },
   "author": "Alex Urdea",
-  "license": "BSD-2-Clause"
+  "license": "BSD-2-Clause",
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
 }
