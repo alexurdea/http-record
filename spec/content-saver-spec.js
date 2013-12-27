@@ -1,5 +1,5 @@
 var http = require('http');
-var ContentSaver = require('../lib/content-saver');
+var ProxyStream = require('../lib/proxy-stream');
 var helperStreams = require('./helpers/streams');
 var inStream, outStream,
   pipedValues,
@@ -13,7 +13,7 @@ describe('the content saver', function(){
       data: pipedValues
     });
     outStream = new helperStreams.WriteStream();
-    contentSaver = new ContentSaver();
+    contentSaver = new ProxyStream();
   });
   
   it('should pipe data through', function(done){
@@ -26,7 +26,7 @@ describe('the content saver', function(){
     });
   });
 
-  it('should know be able to intercept JSON responses', function(){
+  it('should be able to intercept JSON responses', function(){
     var response = new http.IncomingMessage();
 
     response.headers['content-type'] = 'application/json';

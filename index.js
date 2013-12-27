@@ -2,11 +2,11 @@
 var PROXY_PORT = 8000;
 
 var http = require('http');
-var ContentSaver = require('./lib/content-saver');
+var ProxyStream = require('./lib/proxy-stream');
 var url = require('url');
 
 var server = http.createServer(function(req, res){
-  var cs = new ContentSaver();
+  var cs = new ProxyStream();
 
   cs
   .on('error', function(){

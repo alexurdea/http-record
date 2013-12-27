@@ -4,18 +4,18 @@ var util = require('util');
 
 var x = 0;
 
-var ContentSaver = function(options){
+var ProxyStream = function(options){
   Transform.call(this, options);
 };
 
-util.inherits(ContentSaver, Transform);
+util.inherits(ProxyStream, Transform);
 
 /**
  * @param {Buffer|String} chunck
  * @param {String} encoding
  * @param {Function} callback
  */
-ContentSaver.prototype._transform = function saveAndPassThrough(chunck, encoding, callback){
+ProxyStream.prototype._transform = function saveAndPassThrough(chunck, encoding, callback){
   this.push(chunck);
   callback();
 };
@@ -26,7 +26,7 @@ ContentSaver.prototype._transform = function saveAndPassThrough(chunck, encoding
  * 
  * @param {http.IncomingMessage} res
  */
-ContentSaver.prototype.intercept = function(res){
+ProxyStream.prototype.intercept = function(res){
   var contentType = res.headers['content-type'];
   if (contentType && /^application\/json/.test(contentType)){
     return true;
@@ -35,4 +35,4 @@ ContentSaver.prototype.intercept = function(res){
   return false;
 };
 
-module.exports = ContentSaver;
+module.exports = ProxyStream;
