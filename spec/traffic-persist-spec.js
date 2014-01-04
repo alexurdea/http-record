@@ -1,6 +1,7 @@
 var trafficPersist;
 var mocks = require('mocks');
 var stream = require('stream');
+var Q = require('Q');
 
 describe('The traffic-persist module', function(){
   fs = mocks.fs.create({
@@ -24,14 +25,20 @@ describe('The traffic-persist module', function(){
       trafficPersist.setBaseDir('/rootdir');
     });
 
-    
+
+    it('should return a promise', function(){
+      var p = trafficPersist.createPath('GET', 'http://some.domain.com/path/to/some/resource?foo=bar&baz=qux');
+      expect(Q.isPromise(p)).toBe(true);
+    });
+
+
     it('should create a file hierarchy', function(done){
-      trafficPersist.createPath('GET', 'http://some.domain.com/path/to/some/resource?foo=bar&baz=qux', 
-        function complete(writeStream){
-          fs.exists('/rootdir/some.domain.com/path/to/some/get_resource?foo=bar&baz=qux', function(exists){
-            expect(exists).toBe(true);
-            expect(writeStream instanceof fs.WriteStream).toBe(true);
-            done();
+      trafficPersist.createPath('GET', 'http://some.domain.com/path/to/some/resource?foo=bar&baz=qux')
+      .then(function complete(writeStream){
+        fs.exists('/rootdir/some.domain.com/path/to/some/get_resource?foo=bar&baz=qux', function(exists){
+          expect(exists).toBe(true);
+          expect(writeStream instanceof fs.WriteStream).toBe(true);
+          done();
         });
       });
     });
@@ -39,12 +46,12 @@ describe('The traffic-persist module', function(){
     
     it('should use an existing hierarchy', function(done){
       fs.mkdir('/rootdir/http://some.domain.com/path/', function(err){
-        trafficPersist.createPath('POST', 'http://some.domain.com/path/to/some/resource',
-          function complete(writeStream){
-            fs.exists('/rootdir/some.domain.com/path/to/some/post_resource', function(exists){
-              expect(exists).toBe(true);
-              expect(writeStream instanceof fs.WriteStream).toBe(true);
-              done();
+        trafficPersist.createPath('POST', 'http://some.domain.com/path/to/some/resource')
+        .then(function complete(writeStream){
+          fs.exists('/rootdir/some.domain.com/path/to/some/post_resource', function(exists){
+            expect(exists).toBe(true);
+            expect(writeStream instanceof fs.WriteStream).toBe(true);
+            done();
           });
         });
       });
