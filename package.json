@@ -12,7 +12,9 @@
   "author": "Alex Urdea",
   "license": "BSD-2-Clause",
   "dependencies": {
+    "q": "~0.9.7"
   },
   "devDependencies": {
+    "mocks": "git://github.com/alexurdea/node-mocks.git"
   }
 }

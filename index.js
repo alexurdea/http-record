@@ -2,7 +2,7 @@
 var PROXY_PORT = 8000;
 
 var http = require('http');
-var ProxyStream = require('./lib/proxy-stream');
+var ProxyStream = require('./lib/proxy-stream').ProxyStream;
 var url = require('url');
 
 var server = http.createServer(function(req, res){
@@ -20,6 +20,7 @@ var server = http.createServer(function(req, res){
 
     // avoid pipe when there's no need to intercept
     if (cs.intercept(serverRes)){
+      cs.initStorage('./data', req.method, req.url);
       serverRes
       .pipe(cs)
       .pipe(res);
