@@ -6,11 +6,10 @@ var ProxyStream = require('./lib/proxy-stream').ProxyStream;
 var url = require('url');
 
 var server = http.createServer(function(req, res){
-  var cs = new ProxyStream();
+  var proxyStream = new ProxyStream();
 
-  cs
-  .on('error', function(){
-    console.log('ERR: ', arguments);
+  proxyStream.on('error', function(){
+    console.error('ERR: ', arguments);
   });
 
   options = url.parse(req.url);
@@ -19,11 +18,12 @@ var server = http.createServer(function(req, res){
     res.writeHead(serverRes.statusCode, serverRes.headers);
 
     // avoid pipe when there's no need to intercept
-    if (cs.intercept(serverRes)){
-      cs.initStorage('./data', req.method, req.url);
-      serverRes
-      .pipe(cs)
-      .pipe(res);
+    if (proxyStream.intercept(serverRes)){
+      proxyStream.initStorage('./data', req.method, req.url).then(function(){
+        serverRes
+        .pipe(proxyStream)
+        .pipe(res);
+      });
     } else {
       serverRes
       .pipe(res);
