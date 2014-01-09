@@ -1,7 +1,10 @@
 
-run:
+  # run
   nodemon --watch lib/ index.js
+  # watch & test
   jasmine-node spec/ --verbose --autotest --watch ./lib/ &
+  # or
+  jasmine-node --verbose spec/traffic-persist-spec.js; jasmine-node --verbose spec/proxy-stream-spec.js
 
 
 ---

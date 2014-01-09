@@ -20,6 +20,11 @@ var server = http.createServer(function(req, res){
     // avoid pipe when there's no need to intercept
     if (proxyStream.intercept(serverRes)){
       proxyStream.initStorage('./data', req.method, req.url).then(function(){
+        // write the headers to the file
+        console.log(req.method, req.url);
+        proxyStream.saveHeaders(serverRes.headers);
+
+        // pipe the body to the file
         serverRes
         .pipe(proxyStream)
         .pipe(res);

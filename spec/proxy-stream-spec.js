@@ -54,12 +54,35 @@ describe('the proxy stream', function(){
   });
 
 
-  it('should throw if the storage has not been init', function(done){
-    prox.on('error', function(err){
-      expect(err.message).toEqual(ERROR_WRITE_STREAM_NOT_INIT);
-      done();
+  it('should throw on pipe if the storage has not been init', function(){
+    expect(function(){
+      inStream.pipe(prox).pipe(outStream);
+    }).toThrow(ERROR_WRITE_STREAM_NOT_INIT);
+  });
+
+
+  it('should throw on writeHeaders if storage not init', function(){
+    expect(function(){
+      prox.saveHeaders({'content-type': 'text/html'});
+    }).toThrow(ERROR_WRITE_STREAM_NOT_INIT);
+  });
+
+
+  describe('data formatting for storage', function(){
+    it('should format opening delimiters', function(){
+      expect(prox.startDelimiter('foo')).toEqual('__FOO__\n\n');
     });
-    inStream.pipe(prox).pipe(outStream);
+
+    
+    it('should format ending delimiters', function(){
+      expect(prox.endDelimiter('foo')).toEqual('\n\n__/FOO__\n\n');
+    });
+
+
+    it('should enclose content in a delimiter', function(){
+      expect(prox.delimitedBlock('foo', 'bar'))
+      .toEqual('__FOO__\n\nbar\n\n__/FOO__\n\n');
+    });
   });
 
   
