@@ -1,24 +1,11 @@
-HTTP get /hello?lalala=1
-  type=json
-HTTPS post /hello
-  user=me
-  password=somepass
-
-gzip -> plain text
-get headers
-
-use a simple database - url -> code, header file id, body file id
-
-transparently follow redirects
-
 
 run:
   nodemon --watch lib/ index.js
-  jasmine-node spec/ --autotest --watch ./lib/ &
+  jasmine-node spec/ --verbose --autotest --watch ./lib/ &
 
 
 ---
-Config file:
+TODO: Config file:
 ---
 
 record: {
@@ -43,7 +30,7 @@ record: {
 
 
 ---
-commands
+TODO: commands
 ---
 
 > use config/replay-config.json
