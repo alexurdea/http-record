@@ -1,11 +1,12 @@
 {
-  "name": "dev",
+  "name": "http-record",
   "version": "0.0.0",
   "description": "A HTTP proxy that records and replays requests, including headers. Useful for mocking responses in tests.",
   "main": "index.js",
   "directories": {
     "doc": "docs"
   },
+  "private": true,
   "scripts": {
     "test": "test"
   },
