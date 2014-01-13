@@ -1,6 +1,5 @@
 var trafficPersist;
 var mocks = require('mocks');
-var proxyquire = require('proxyquire');
 var stream = require('stream');
 var Q = require('Q');
 
