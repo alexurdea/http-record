@@ -4,9 +4,9 @@ function handleConfigError(e){
 }
 
 
-function ConfigFileError(msg){
+function ConfigError(msg){
   this.message = msg;
-  this.name = 'ConfigFileError';
+  this.name = 'ConfigError';
 }
 
 
@@ -27,7 +27,7 @@ function run(argv){
   var configPath, config;
 
   if (!optConfig){
-    throw new ConfigFileError('Please provide a config file with --config=<path to file>');
+    throw new ConfigError('Please provide a config file with --config=<path to file>');
     process.exit(1);
   }
 
@@ -36,7 +36,12 @@ function run(argv){
   try {
     config = require(configPath);
   } catch(e){
-    throw new ConfigFileError('Cannot find config file ' + configPath);
+    throw new ConfigError('Cannot find config file ' + configPath);
+  }
+
+  // it should be in either --record or --replay mode
+  if (!optRecord && !optReplay){
+    throw new ConfigError('Please use at least one of these modes: --record/--replay');
   }
 
   var proxyPort = config.record.proxyPort || PROXY_PORT;
@@ -88,7 +93,7 @@ if (require.main === module){
   try {
     run(argv);
   } catch(e){
-    if (e.name === "ConfigFileError"){
+    if (e.name === "ConfigError"){
       handleConfigError(e);
     }
   }
@@ -96,5 +101,5 @@ if (require.main === module){
 
 module.exports = {
   run: run,
-  ConfigFileError: ConfigFileError
+  ConfigError: ConfigError
 };
