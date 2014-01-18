@@ -67,24 +67,6 @@ describe('the proxy stream', function(){
     }).toThrow(ERROR_WRITE_STREAM_NOT_INIT);
   });
 
-
-  describe('data formatting for storage', function(){
-    it('should format opening delimiters', function(){
-      expect(prox.startDelimiter('foo')).toEqual('__FOO__\n\n');
-    });
-
-    
-    it('should format ending delimiters', function(){
-      expect(prox.endDelimiter('foo')).toEqual('\n\n__/FOO__\n\n');
-    });
-
-
-    it('should enclose content in a delimiter', function(){
-      expect(prox.delimitedBlock('foo', 'bar'))
-      .toEqual('__FOO__\n\nbar\n\n__/FOO__\n\n');
-    });
-  });
-
   
   describe('once the storage has been initialized', function(){
     var storageInitP;
@@ -100,7 +82,6 @@ describe('the proxy stream', function(){
       storageInitP = null;
     });
 
-
     it('should pipe data through', function(){
       storageInitP.then(function(){
         prox
@@ -113,6 +94,5 @@ describe('the proxy stream', function(){
       });
     });
   });
-
 
 });

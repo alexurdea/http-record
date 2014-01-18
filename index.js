@@ -1,3 +1,8 @@
+var path = require('path');
+var trafficPersist = require('./lib/traffic-persist');
+var storageFormatters = require('./lib/storage-formatters');
+var BASE_DIR = path.normalize(__dirname + '/data');
+
 function handleConfigError(e){
   console.error('\n' + e.message + '\n');
   process.exit(1);
@@ -19,7 +24,6 @@ function run(argv){
   var http = require('http');
   var ProxyStream = require('./lib/proxy-stream').ProxyStream;
   var url = require('url');
-  var path = require('path');
   var fs = require('fs');
   var optRecord = argv.record;
   var optReplay = argv.replay;
@@ -48,7 +52,8 @@ function run(argv){
 
 
   var server = http.createServer(function(req, res){
-    var proxyStream = new ProxyStream();
+    var proxyStream = new ProxyStream(),
+      recording, recordingPath;
 
     proxyStream.on('error', function(){
       console.error('ERR: ', arguments);
@@ -57,16 +62,31 @@ function run(argv){
     options = url.parse(req.url);
 
     if(optReplay && !optRecord && config.replay.noProxy === true){
-      // TODO: serve recording
-      // If recording is missing, then display a warning to stderr
-      console.warn('Serving recordings is not implemented');
+      trafficPersist.setBaseDir(BASE_DIR);
+      
+      recordingPath = trafficPersist.urlToStoragePath(req.url, req.method);
+      fs.exists(recordingPath, function(exists){
+        if (!exists){
+          console.error('Could not find recording for:', req.method.toUpperCase(), req.url);
+        } else {
+          storageFormatters.getDelimitedBlock('headers', fs.createReadStream(recordingPath))
+          .then(function(headers){
+            console.log('GOT HEADERS');
+            console.log(headers);
+            fs.createReadStream(recordingPath).pipe(res);
+          });
+        }
+      });
+      
+      return;
+
     } else {
       var httpReq = http.request(options, function(serverRes){
         res.writeHead(serverRes.statusCode, serverRes.headers);
 
         // avoid pipe when there's no need to intercept
         if (proxyStream.intercept(serverRes)){
-          proxyStream.initStorage('./data', req.method, req.url).then(function(){
+          proxyStream.initStorage(BASE_DIR, req.method, req.url).then(function(){
             // write the headers to the file
             console.log(req.method, req.url);
             proxyStream.saveHeaders(serverRes.headers);

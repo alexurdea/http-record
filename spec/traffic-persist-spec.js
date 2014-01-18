@@ -21,6 +21,30 @@ describe('The traffic-persist module', function(){
   });
 
 
+  describe('urlToStoragePath', function(){
+    it('should throw if the baseDir is not set', function(){
+      var someUrl = 'http://some.domain.com/foo';
+
+      expect(function(){
+        trafficPersist.urlToStoragePath(someUrl, 'GET');
+      }).toThrow(trafficPersist.ERROR_NO_BASEDIR);
+    });
+
+    it('should return a correct path', function(){
+      trafficPersist.setBaseDir('/somedir');
+      expect(trafficPersist.urlToStoragePath('https://www.somedomain.com/foo/bar?baz=123', 'GET'))
+      .toEqual('/somedir/www.somedomain.com/foo/get_bar?baz=123');
+      
+      expect(trafficPersist.urlToStoragePath('http://somedomain.com/foo', 'get'))
+      .toEqual('/somedir/somedomain.com/get_foo');
+      expect(trafficPersist.urlToStoragePath('http://somedomain.com/foo/bar', 'POST'))
+      .toEqual('/somedir/somedomain.com/foo/post_bar');
+    });
+
+
+  });
+
+
   describe('once the baseDir has been set', function(){
     beforeEach(function(){
       trafficPersist.setBaseDir('/rootdir');
