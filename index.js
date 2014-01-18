@@ -71,9 +71,11 @@ function run(argv){
         } else {
           storageFormatters.getDelimitedBlock('headers', fs.createReadStream(recordingPath))
           .then(function(headers){
-            console.log('GOT HEADERS');
-            console.log(headers);
-            fs.createReadStream(recordingPath).pipe(res);
+            res.writeHead(200, JSON.parse(headers));
+            return storageFormatters.getDelimitedBlock('content', fs.createReadStream(recordingPath));
+          })
+          .then(function(content){
+            res.end(content);
           });
         }
       });
