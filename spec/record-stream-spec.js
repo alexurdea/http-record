@@ -5,7 +5,7 @@ var helperStreams = require('./helpers/streams');
 
 var inStream, outStream,
   pipedValues,
-  prox,
+  recStream,
   trafficPersistMock;
 
 trafficPersistMock = {
@@ -22,16 +22,16 @@ trafficPersistMock = {
   setBaseDir: function(){ baseDir = ''; }
 };
 
-var proxyStream = proxyquire('../lib/proxy-stream', {
+var recordStream = proxyquire('../lib/record-stream', {
   trafficPersist: trafficPersistMock,
   expect: expect
 });
 
-var ProxyStream = proxyStream.ProxyStream;
-var ERROR_WRITE_STREAM_NOT_INIT = proxyStream.ERROR_WRITE_STREAM_NOT_INIT;
+var RecordStream = recordStream.RecordStream;
+var ERROR_WRITE_STREAM_NOT_INIT = recordStream.ERROR_WRITE_STREAM_NOT_INIT;
 
 
-describe('the proxy stream', function(){
+describe('the record stream', function(){
   beforeEach(function(){
     pipedValues = ['a', 'b', 'c', 'd', 'e'];
 
@@ -39,7 +39,7 @@ describe('the proxy stream', function(){
       data: pipedValues
     });
     outStream = new helperStreams.WriteStream();
-    prox = new ProxyStream();
+    recStream = new RecordStream();
   });
 
 
@@ -47,23 +47,23 @@ describe('the proxy stream', function(){
     var response = new http.IncomingMessage();
 
     response.headers['content-type'] = 'application/json';
-    expect(prox.intercept(response)).toBe(true);
+    expect(recStream.intercept(response)).toBe(true);
 
     response.headers['content-type'] = 'text/html';
-    expect(prox.intercept(response)).toBe(false);
+    expect(recStream.intercept(response)).toBe(false);
   });
 
 
   it('should throw on pipe if the storage has not been init', function(){
     expect(function(){
-      inStream.pipe(prox).pipe(outStream);
+      inStream.pipe(recStream).pipe(outStream);
     }).toThrow(ERROR_WRITE_STREAM_NOT_INIT);
   });
 
 
   it('should throw on writeHeaders if storage not init', function(){
     expect(function(){
-      prox.saveHeaders({'content-type': 'text/html'});
+      recStream.saveHeaders({'content-type': 'text/html'});
     }).toThrow(ERROR_WRITE_STREAM_NOT_INIT);
   });
 
@@ -72,8 +72,8 @@ describe('the proxy stream', function(){
     var storageInitP;
 
     beforeEach(function(){
-      storageInitP = prox.initStorage('someDir', 'GET', 'http://some.domain.com/');
-      prox.on('error', function(e){
+      storageInitP = recStream.initStorage('someDir', 'GET', 'http://some.domain.com/');
+      recStream.on('error', function(e){
         throw e;
       });
     });
@@ -84,13 +84,13 @@ describe('the proxy stream', function(){
 
     it('should pipe data through', function(){
       storageInitP.then(function(){
-        prox
+        recStream
         .on('finish', function(){
           expect(outStream.data).toEqual(pipedValues);
           done();
         });
 
-        inStream.pipe(prox).pipe(outStream);
+        inStream.pipe(recStream).pipe(outStream);
       });
     });
   });

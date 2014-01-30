@@ -2,6 +2,8 @@ var spawn = require('child_process').spawn;
 var q = require('q');
 var path = require('path');
 var INDEX_PATH = path.resolve(__dirname + '/../index.js');
+var index = require(INDEX_PATH);
+var ERROR_OPTIONS_MODE = index.ERROR_OPTIONS_MODE;
 
 
 function endStream(stream){
@@ -53,7 +55,7 @@ describe('httpRecord', function(){
 
       listenToProcess(proc).then(function(exitCode){
         expect(exitCode).toBeGreaterThan(0);
-        expect(errorMsg.trim()).toEqual('Please use at least one of these modes: --record/--replay');
+        expect(errorMsg.trim()).toEqual(ERROR_OPTIONS_MODE);
         done();
       })
     });

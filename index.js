@@ -1,7 +1,9 @@
 var path = require('path');
-var trafficPersist = require('./lib/traffic-persist');
-var storageFormatters = require('./lib/storage-formatters');
-var BASE_DIR = path.normalize(__dirname + '/data');
+
+var ERROR_OPTIONS_MODE = 'Please use at least one of these modes: '
+  + '\n  --record/--replay for command line mode'
+  + '\n  or'
+  + '\n  --web-client for the web client interface';
 
 function handleConfigError(e){
   console.error('\n' + e.message + '\n');
@@ -20,15 +22,16 @@ function ConfigError(msg){
  */
 function run(argv){
   // config
-  var PROXY_PORT = 8000;
-  var http = require('http');
-  var ProxyStream = require('./lib/proxy-stream').ProxyStream;
-  var url = require('url');
-  var fs = require('fs');
+  var controller = require('./lib/controller');
+  
   var optRecord = argv.record;
   var optReplay = argv.replay;
+  var optWebClient = argv['web-client'];
   var optConfig = argv.config;
+  
   var configPath, config;
+  
+  var PROXY_PORT = 8000;
 
   if (!optConfig){
     throw new ConfigError('Please provide a config file with --config=<path to file>');
@@ -44,69 +47,24 @@ function run(argv){
   }
 
   // it should be in either --record or --replay mode
-  if (!optRecord && !optReplay){
-    throw new ConfigError('Please use at least one of these modes: --record/--replay');
+  if (!optRecord && !optReplay && !optWebClient){
+    throw new ConfigError(ERROR_OPTIONS_MODE);
   }
 
   var proxyPort = config.record.proxyPort || PROXY_PORT;
 
-
-  var server = http.createServer(function(req, res){
-    var proxyStream = new ProxyStream(),
-      recording, recordingPath;
-
-    proxyStream.on('error', function(){
-      console.error('ERR: ', arguments);
+  if (optRecord || optReplay){
+    process.stdout.write('Starting proxy...');
+    controller.start({
+      record: optRecord,
+      replay: optReplay,
+      port: proxyPort
     });
-
-    options = url.parse(req.url);
-
-    if(optReplay && !optRecord && config.replay.noProxy === true){
-      trafficPersist.setBaseDir(BASE_DIR);
-      
-      recordingPath = trafficPersist.urlToStoragePath(req.url, req.method);
-      fs.exists(recordingPath, function(exists){
-        if (!exists){
-          console.error('Could not find recording for:', req.method.toUpperCase(), req.url);
-        } else {
-          storageFormatters.getDelimitedBlock('headers', fs.createReadStream(recordingPath))
-          .then(function(headers){
-            res.writeHead(200, JSON.parse(headers));
-            return storageFormatters.getDelimitedBlock('content', fs.createReadStream(recordingPath));
-          })
-          .then(function(content){
-            res.end(content);
-          });
-        }
-      });
-      
-      return;
-
-    } else {
-      var httpReq = http.request(options, function(serverRes){
-        res.writeHead(serverRes.statusCode, serverRes.headers);
-
-        // avoid pipe when there's no need to intercept
-        if (proxyStream.intercept(serverRes)){
-          proxyStream.initStorage(BASE_DIR, req.method, req.url).then(function(){
-            // write the headers to the file
-            console.log(req.method, req.url);
-            proxyStream.saveHeaders(serverRes.headers);
-
-            // pipe the body to the file
-            serverRes
-            .pipe(proxyStream)
-            .pipe(res);
-          });
-        } else {
-          serverRes
-          .pipe(res);
-        }
-
-      });
-      req.pipe(httpReq);
-    }
-  }).listen(proxyPort);
+    process.stdout.write(' started\n');
+  } else if (optWebClient) {
+    // start the communication server (websockets)
+    // then start the webserver
+  }
 }
 
 var argv = require('optimist').argv;
@@ -117,11 +75,14 @@ if (require.main === module){
   } catch(e){
     if (e.name === "ConfigError"){
       handleConfigError(e);
+    } else {
+      throw e;
     }
   }
 }
 
 module.exports = {
   run: run,
-  ConfigError: ConfigError
+  ConfigError: ConfigError,
+  ERROR_OPTIONS_MODE: ERROR_OPTIONS_MODE
 };

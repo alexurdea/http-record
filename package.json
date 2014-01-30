@@ -14,10 +14,13 @@
   "license": "BSD-2-Clause",
   "dependencies": {
     "q": "~0.9.7",
-    "optimist": "~0.6.0"
+    "optimist": "~0.6.0",
+    "express": "~3.4.8"
   },
   "devDependencies": {
     "mocks": "git://github.com/alexurdea/node-mocks.git",
-    "proxyquire": "~0.5.2"
+    "proxyquire": "~0.5.2",
+    "portscanner": "~0.2.0",
+    "lodash": "~2.4.1"
   }
 }
