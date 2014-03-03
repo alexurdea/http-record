@@ -15,7 +15,8 @@
   "dependencies": {
     "q": "~0.9.7",
     "optimist": "~0.6.0",
-    "express": "~3.4.8"
+    "express": "~3.4.8",
+    "socket.io": "~0.9.16"
   },
   "devDependencies": {
     "mocks": "git://github.com/alexurdea/node-mocks.git",

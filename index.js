@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var path = require('path');
 
 var ERROR_OPTIONS_MODE = 'Please use at least one of these modes: '
@@ -9,7 +11,6 @@ function handleConfigError(e){
   console.error('\n' + e.message + '\n');
   process.exit(1);
 }
-
 
 function ConfigError(msg){
   this.message = msg;
@@ -29,9 +30,13 @@ function run(argv){
   var optWebClient = argv['web-client'];
   var optConfig = argv.config;
   
+  var webCliApp, io, serv;
   var configPath, config;
   
   var PROXY_PORT = 8000;
+  var WEB_CLI_SERV_PORT = 8300;
+  var WEBSOCKETS_PORT = 8400;  // will only be used with NODE_ENV=development,
+                               // otherwise websockets serv listens on WEB_CLI_SERV_PORT 
 
   if (!optConfig){
     throw new ConfigError('Please provide a config file with --config=<path to file>');
@@ -62,8 +67,27 @@ function run(argv){
     });
     process.stdout.write(' started\n');
   } else if (optWebClient) {
-    // start the communication server (websockets)
-    // then start the webserver
+    // Set your NODE_ENV=development to work with the Grunt dev server,
+    // or you will have to run with the production server
+    // (which serves the compiled project from /web-client/dist)
+    
+    if (process.env.NODE_ENV === 'development'){
+      io = require('socket.io').listen(WEBSOCKETS_PORT);
+
+      console.log('\nWeb server started. NODE_ENV is "development".\n\n' +
+        'Make sure that your Grunt dev server is started. The Grunt dev server usually runs on port 9000.\n' +
+        'Point your browser to http://127.0.0.1:<Grunt dev server port>/?syncport=' + WEBSOCKETS_PORT + '\n');
+
+    } else {
+      webCliApp = require('./lib/server').start(__dirname + '/web-client/dist', WEB_CLI_SERV_PORT);
+      serv = require('http').createServer(webCliApp);
+      io = require('socket.io').listen(serv);
+
+      console.log('\nWeb server started. Point your browser to http://127.0.0.1:' + WEB_CLI_SERV_PORT + '\n');
+
+    }
+
+    var clientSyncManager = require('./lib/client-sync-manager')(io);
   }
 }
 

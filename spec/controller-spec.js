@@ -18,7 +18,10 @@ describe('controller', function(){
         portscanner.checkPortStatus(port, { timeout: 150 }, function(err, status){
           expect(err).toBe(null);
           expect(status).toBe('open');
-          controller.stop(done);
+          controller.once('stop', function(){
+            done();
+          })
+          controller.stop();
         });
       });
 
@@ -28,12 +31,13 @@ describe('controller', function(){
   
     it('should stop binding to the port on stop', function(done){
       controller.once('start', function(){
-        controller.stop(function(){
+        controller.on('stop', function(){
           portscanner.checkPortStatus(port, { timeout: 150 }, function(err, status){
             expect(status).toBe('closed');
             done();
           });
         });
+        controller.stop();
       });
 
       controller.start(ctrlOpts);
@@ -48,7 +52,10 @@ describe('controller', function(){
       .then(function(){
         portscanner.checkPortStatus(port, { timeout: 150 }, function(err, status){
           expect(status).toBe('open');
-          controller.stop(done);
+          controller.once('stop', function(){
+            done();
+          });
+          controller.stop();
         });
       });
 
@@ -69,7 +76,8 @@ function startServer(restart){
   var Q = require('Q'),
     deferred = Q.defer();
 
-  controller.once('start', function(){
+  var event = restart ? 'restart' : 'start';
+  controller.once(event, function(){
     deferred.resolve();
   });
   controller[restart ? 'restart' : 'start'](ctrlOpts);

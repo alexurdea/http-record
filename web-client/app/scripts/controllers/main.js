@@ -1,10 +1,6 @@
 'use strict';
 
-angular.module('core')
-  .controller('MainCtrl', function ($scope) {
-    $scope.awesomeThings = [
-      'HTML5 Boilerplate',
-      'AngularJS',
-      'Karma'
-    ];
-  });
+angular.module('app')
+  .controller('MainCtrl', ['sync', function(sync){
+    sync.action('record');
+  }]);
