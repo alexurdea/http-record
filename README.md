@@ -102,8 +102,8 @@ Architecture
     starts the server and displays a message on how to access the web client
 
 - Server (lib/server) is an express web server that serves the web client. It's being started by index.js, when NODE_ENV is
-  NOT set to "development" (so when NODE_ENV is "development", then the dev server is started). It serves the content of
-  /dist
+  NOT set to "development" (so when NODE_ENV is "development", then you need to start the Grunt dev server). It serves the
+  content of /dist
   Usage:
     - start it from with the --web-client command on the command line, when not in a dev environment
 
