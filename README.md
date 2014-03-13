@@ -75,6 +75,52 @@ Only when in record mode - do not create any requests to intended hosts, just se
 storage. If a recording is not available, write out a warning to stderr.
 
 
+Architecture
+------------
+
+- Controller (lib/controller) inits the proxying.
+  It uses:
+    - a Record Stream instance
+    - Traffic Persist
+    - Storage Formatters
+  It emits:
+    - action names that it executes - like 'start', 'stop', 'restart'
+  Usage:
+    - used by both index.js (so the command line), and the web client via the Client Sync Manager
+
+- Client Sync Manager (lib/client-sync-manager)
+  It uses:
+    - Controller
+  Usage:
+    - creates a socket and listens for actions which is calls on the Controller, from Web Client. The socket will emit 
+    'user-action-complete'
+
+- Web Client (webclient/) is a web app that accesses the proxy via a web socket, and can send commands to the proxy, change 
+  the config, and display recordings
+  Usage:
+    - can either start it by starting the server manually, or start the recorder in command line with --web-client, which
+    starts the server and displays a message on how to access the web client
+
+- Server (lib/server) is an express web server that serves the web client. It's being started by index.js, when NODE_ENV is
+  NOT set to "development" (so when NODE_ENV is "development", then the dev server is started). It serves the content of
+  /dist
+  Usage:
+    - start it from with the --web-client command on the command line, when not in a dev environment
+
+- Record Stream (lib/record-stream) - an implementation of a transform stream. You first need to call 'initStorage' on it, to become ready for
+  piping
+  It uses:
+    - Traffic Persist
+  Usage:
+    - call initStorage on it, to create a record (file on disk etc) that coresponds to the URL and method
+
+- Traffic Persist (lib/traffic-persist) - maps URLs + HTTP method to a path on disk, creates the file, and returns a writable stream
+  Usage:
+    - always call setBaseDir first, then createPath
+
+- Storage Formatters - responsible with the separator strings that make possible storing and retreaving different request/response
+  parts
+  
 
 Dev
 ---
