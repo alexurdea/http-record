@@ -35,8 +35,8 @@ function run(argv){
   
   var PROXY_PORT = 8000;
   var WEB_CLI_SERV_PORT = 8300;
-  var WEBSOCKETS_PORT = 8400;  // will only be used with NODE_ENV=development,
-                               // otherwise websockets serv listens on WEB_CLI_SERV_PORT 
+  var WEBSOCKETS_PORT = controller.DEFAULT_SYNC_PORT;  // will only be used with NODE_ENV=development,
+                                                       // otherwise websockets serv listens on WEB_CLI_SERV_PORT 
 
   if (!optConfig){
     throw new ConfigError('Please provide a config file with --config=<path to file>');
@@ -84,10 +84,10 @@ function run(argv){
       io = require('socket.io').listen(serv);
 
       console.log('\nWeb server started. Point your browser to http://127.0.0.1:' + WEB_CLI_SERV_PORT + '\n');
-
     }
 
-    var clientSyncManager = require('./lib/client-sync-manager')(io);
+    // start the Client Sync Manager
+    require('./lib/client-sync-manager')(io);
   }
 }
 

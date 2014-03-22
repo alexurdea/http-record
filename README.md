@@ -29,6 +29,13 @@ Just replay:
 Of course, you can just record with just the `--record` option. You can then go 
 to the recordings directory, and edit the files before replaying them.
 
+Ports:
+  - web-client: 9000 dev server / 7654 for prod server
+  - websockets: 8400 for sync with web client - should be 7654, as as prod server
+  - proxy port: 8000
+
+
+
 
 Config
 ------
@@ -88,12 +95,10 @@ Architecture
   Usage:
     - used by both index.js (so the command line), and the web client via the Client Sync Manager
 
-- Client Sync Manager (lib/client-sync-manager)
+- Client Sync Manager (lib/client-sync-manager). Creates a socket and listens for actions which is calls on the Controller,
+  from Web Client. The socket will emit 'user-action-complete'.
   It uses:
     - Controller
-  Usage:
-    - creates a socket and listens for actions which is calls on the Controller, from Web Client. The socket will emit 
-    'user-action-complete'
 
 - Web Client (webclient/) is a web app that accesses the proxy via a web socket, and can send commands to the proxy, change 
   the config, and display recordings
@@ -125,6 +130,11 @@ Architecture
 Dev
 ---
   ```bash
+  export NODE_ENV=development
+  ./index.js --config=conf/example.conj.json --web-client &
+  cd ./web-client
+  grunt serve &
+  open 127.0.0.1:9000/?syncport=8400 
   # run
   nodemon --watch lib/ index.js
   # watch & test

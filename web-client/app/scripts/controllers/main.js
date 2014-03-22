@@ -2,5 +2,5 @@
 
 angular.module('app')
   .controller('MainCtrl', ['sync', function(sync){
-    sync.action('record');
+    sync.action('start');
   }]);
