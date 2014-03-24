@@ -13,6 +13,12 @@ describe('controller', function(){
   
   describe('once started', function(){
 
+    afterEach(function(){
+      try {
+        controller.stop();
+      } catch(e){}
+    });
+
     it('should bind to the port', function(done){
       controller.once('start', function(){
         portscanner.checkPortStatus(port, { timeout: 150 }, function(err, status){

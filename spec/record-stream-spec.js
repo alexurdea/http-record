@@ -19,7 +19,8 @@ trafficPersistMock = {
 
     return deferred.promise;
   },
-  setBaseDir: function(){ baseDir = ''; }
+  // use spec/tmp as base
+  setBaseDir: function(){ baseDir = __dirname + '/tmp'; }
 };
 
 var recordStream = proxyquire('../lib/record-stream', {
@@ -72,8 +73,9 @@ describe('the record stream', function(){
     var storageInitP;
 
     beforeEach(function(){
-      storageInitP = recStream.initStorage('someDir', 'GET', 'http://some.domain.com/');
+      storageInitP = recStream.initStorage(__dirname + '/tmp', 'GET', 'http://some.domain.com/');
       recStream.on('error', function(e){
+        console.log('recStream error', e.stack);
         throw e;
       });
     });
@@ -82,7 +84,7 @@ describe('the record stream', function(){
       storageInitP = null;
     });
 
-    it('should pipe data through', function(){
+    it('should pipe data through', function(done){
       storageInitP.then(function(){
         recStream
         .on('finish', function(){
