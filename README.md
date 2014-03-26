@@ -137,10 +137,11 @@ Dev
   open 127.0.0.1:9000/?syncport=8400 
   # run
   nodemon --watch lib/ index.js
-  # watch & test
-  jasmine-node spec/ --verbose --autotest --watch ./lib/ &
-  # or
-  jasmine-node --verbose spec/traffic-persist-spec.js; jasmine-node --verbose spec/proxy-stream-spec.js
+  # node tests
+  grunt watch:test &
+  # web-client tests
+  cd web-client
+  karma start karma.conf.js &
   ```
 
 
