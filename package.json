@@ -22,6 +22,9 @@
     "mocks": "git://github.com/alexurdea/node-mocks.git",
     "proxyquire": "~0.5.2",
     "portscanner": "~0.2.0",
-    "lodash": "~2.4.1"
+    "lodash": "~2.4.1",
+    "grunt": "~0.4.4",
+    "grunt-shell": "~0.6.4",
+    "grunt-contrib-watch": "~0.6.1"
   }
 }
